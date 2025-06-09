@@ -19,6 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Check if strlcpy and strlcat are already available in the system
+#ifndef HAVE_STRLCPY
+#if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 38)
+
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
  * will be copied.  Always NUL terminates (unless siz == 0).
@@ -31,6 +35,7 @@ inline size_t strlcpy(char *dst, const char *src, size_t siz)
     size_t n = siz;
 
     /* Copy as many bytes as will fit */
+
     if (n != 0)
     {
         while (--n != 0)
@@ -41,6 +46,7 @@ inline size_t strlcpy(char *dst, const char *src, size_t siz)
     }
 
     /* Not enough room in dst, add NUL and traverse rest of src */
+
     if (n == 0)
     {
         if (siz != 0)
@@ -67,6 +73,7 @@ inline size_t strlcat(char *dst, const char *src, size_t siz)
     size_t dlen;
 
     /* Find the end of dst and adjust bytes left but don't go past end */
+
     while (n-- != 0 && *d != '\0')
         d++;
     dlen = d - dst;
@@ -84,7 +91,11 @@ inline size_t strlcat(char *dst, const char *src, size_t siz)
         s++;
     }
     *d = '\0';
-
+    
     return(dlen + (s - src)); /* count does not include NUL */
 }
-#endif
+
+#endif // glibc version check
+#endif // HAVE_STRLCPY
+
+#endif // BITCOIN_STRLCPY_H
